@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>Spese Trasferta</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--text:#1a1f1e;--muted:#66706e;--line:#e2e7e5;--accent:#0f766e;--accent-2:#e6f4f2;--danger:#b42318;--radius:14px;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#101413;--card:#1a201f;--text:#e8eceb;--muted:#9aa5a2;--line:#2b3331;--accent:#2bb3a3;--accent-2:#16302d;--danger:#f97066}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(72px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent}
+.topbar{position:sticky;top:0;z-index:5;background:var(--accent);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px}
+.topbar h1{margin:0;font-size:20px;max-width:720px;margin:0 auto}
+main{padding:12px 16px;max-width:720px;margin:0 auto}
+.view{display:none}.view.active{display:block}
+.month-nav{display:flex;align-items:center;justify-content:space-between;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin-bottom:12px}
+.month-nav button{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent-2);color:var(--accent);font-size:26px;line-height:1}
+#month-label{font-weight:600}
+.big{font-size:24px;font-weight:700;color:var(--accent)}
+.group{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.group-head{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--accent-2);font-weight:600}
+.item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.group-head+.item{border-top:0}
+#trip-list .item,#trip-expenses .item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px}
+.thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;flex:none;background:var(--accent-2)}
+.thumb.none{display:grid;place-items:center;font-size:22px}
+.item-main{flex:1;min-width:0}
+.item-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-sub{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-amt{font-weight:700;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:16px}
+label{display:block;font-size:14px;color:var(--muted);margin:10px 0}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:12px;font:inherit;font-size:16px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+label.check{display:flex;align-items:center;gap:8px;color:var(--text)}
+label.check input{width:auto;margin:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.btn{padding:12px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-weight:600;min-height:44px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:8px 14px;min-height:36px}
+.btn.block{display:block;width:100%;margin:8px 0 12px}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:none}
+.danger-text{color:var(--danger)!important}
+.fab{position:fixed;right:20px;bottom:calc(84px + env(safe-area-inset-bottom));width:64px;height:64px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:28px;box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:6;cursor:pointer}
+.tabbar{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+.tabbar button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.tabbar button span{font-size:20px}
+.tabbar button.active{color:var(--accent);font-weight:600}
+dialog{border:0;padding:0;width:100%;max-width:720px;height:100%;max-height:100%;margin:0 auto;background:var(--bg);color:var(--text)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.dlg-head{position:sticky;top:0;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:var(--card);border-bottom:1px solid var(--line);z-index:1}
+.dlg-head h2{flex:1;margin:0;font-size:18px}
+.icon-btn{width:40px;height:40px;border:0;background:none;color:var(--text);font-size:20px;cursor:pointer}
+.dlg-body{padding:12px 16px 40px}
+.photo-box{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);min-height:160px;display:grid;place-items:center;overflow:hidden;margin-bottom:8px}
+.photo-box img{width:100%;max-height:45vh;object-fit:contain;cursor:zoom-in}
+#photo-empty{color:var(--muted);padding:20px;text-align:center}
+fieldset.seg{border:0;padding:0;margin:10px 0}
+fieldset.seg legend{font-size:14px;color:var(--muted);margin-bottom:4px;padding:0}
+.seg-opts{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg-opts label{flex:1;margin:0;position:relative}
+.seg-opts input{position:absolute;opacity:0;width:1px;height:1px}
+.seg-opts span{display:block;text-align:center;padding:12px 6px;color:var(--text);background:var(--card);cursor:pointer}
+.seg-opts label+label span{border-left:1px solid var(--line)}
+.seg-opts input:checked+span{background:var(--accent);color:#fff;font-weight:600}
+.seg-opts input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-4px}
+.report-doc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.report-doc h2{margin:0 0 4px;font-size:20px}
+.report-doc h3{margin:20px 0 6px;font-size:16px}
+.report-doc table{width:100%;border-collapse:collapse;font-size:14px}
+.report-doc th,.report-doc td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.report-doc th{color:var(--muted);font-weight:600;font-size:12px}
+.num{text-align:right!important;white-space:nowrap}
+.report-doc tfoot td{font-weight:700;border-bottom:0}
+.grand{display:flex;justify-content:space-between;margin-top:20px;padding-top:12px;border-top:2px solid var(--text);font-size:18px;font-weight:700}
+.annex{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.annex figure{margin:0;break-inside:avoid}
+.annex img{width:100%;border:1px solid var(--line);border-radius:6px}
+.annex figcaption{font-size:12px;color:var(--muted)}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.banner{background:#fff4e5;color:#7a4b00;border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(160px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:100;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+#viewer{background:#000}
+#viewer img{width:100%;height:100%;object-fit:contain}
+#viewer .icon-btn{position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;color:#fff;background:rgba(0,0,0,.5);border-radius:50%}
+@media print{
+  @page{margin:14mm}
+  :root{--text:#000;--muted:#555;--line:#999;--card:#fff}
+  body{background:#fff;color:#000;padding:0}
+  .topbar,.tabbar,.fab,.no-print,dialog,.toast,.banner{display:none!important}
+  main{padding:0;max-width:none}
+  .view{display:none!important}
+  #view-report{display:block!important}
+  .report-doc{border:0;padding:0}
+  .annex{grid-template-columns:repeat(2,1fr)}
+  .annex img{max-height:120mm;object-fit:contain}
+  .page-break{break-before:page}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><h1 id="title">Spese</h1></header>
+
+<main>
+  <section id="view-spese" class="view active">
+    <div id="backup-banner"></div>
+    <div class="month-nav">
+      <button id="prev-month" aria-label="Mese precedente">‹</button>
+      <div><div id="month-label"></div><div id="month-total" class="big"></div></div>
+      <button id="next-month" aria-label="Mese successivo">›</button>
+    </div>
+    <div id="expense-list"></div>
+  </section>
+
+  <section id="view-trasferte" class="view">
+    <button id="new-trip" class="btn primary block">+ Nuova trasferta</button>
+    <div id="trip-list"></div>
+  </section>
+
+  <section id="view-report" class="view">
+    <div class="card no-print">
+      <label>Mese del report <input type="month" id="report-month"></label>
+      <label class="check"><input type="checkbox" id="report-photos" checked> Allega le foto degli scontrini</label>
+      <div class="row">
+        <button id="btn-print" class="btn primary">Stampa / PDF</button>
+        <button id="btn-csv" class="btn">Esporta CSV</button>
+      </div>
+    </div>
+    <div id="report"></div>
+  </section>
+
+  <section id="view-impostazioni" class="view">
+    <div class="card">
+      <h3>Intestazione del report</h3>
+      <label>Nome e cognome <input id="s-nome" autocomplete="name" placeholder="Es. Mario Rossi"></label>
+    </div>
+    <div class="card">
+      <h3>Backup dei dati</h3>
+      <p class="muted">Scontrini e foto sono salvati solo su questo telefono. Fai un backup ogni tanto (ad esempio a fine mese): il file finisce nella cartella Download e puoi copiarlo su Drive o sul PC.</p>
+      <p id="last-backup"></p>
+      <div class="row">
+        <button id="btn-backup" class="btn primary">Salva backup</button>
+        <button id="btn-restore" class="btn">Ripristina</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Spazio occupato</h3>
+      <p id="storage-info" class="muted"></p>
+    </div>
+    <p class="muted center">Spese Trasferta · versione 1.0</p>
+  </section>
+</main>
+
+<button id="fab" class="fab" aria-label="Nuovo scontrino">📷</button>
+
+<nav class="tabbar">
+  <button data-view="spese" class="active"><span>🧾</span>Spese</button>
+  <button data-view="trasferte"><span>🧳</span>Trasferte</button>
+  <button data-view="report"><span>📊</span>Report</button>
+  <button data-view="impostazioni"><span>⚙️</span>Altro</button>
+</nav>
+
+<input type="file" id="cam-input" accept="image/*" capture="environment" hidden>
+<input type="file" id="gal-input" accept="image/*" hidden>
+<input type="file" id="restore-input" accept="application/json,.json" hidden>
+<datalist id="causali"></datalist>
+
+<dialog id="expense-dlg">
+  <form id="expense-form" novalidate>
+    <div class="dlg-head">
+      <button type="button" class="icon-btn" data-close aria-label="Chiudi">✕</button>
+      <h2 id="expense-dlg-title">Nuovo scontrino</h2>
+      <button type="submit" class="btn primary small">Salva</button>
+    </div>
+    <div class="dlg-body">
+      <div class="photo-box">
+        <img id="photo-preview" alt="Foto dello scontrino" hidden>
+        <div id="photo-empty">Nessuna foto<br>Scatta la foto dello scontrino</div>
+      </div>
+      <div class="row">
+        <button type="button" id="btn-cam" class="btn">📷 Scatta</button>
+        <button type="button" id="btn-gal" class="btn">🖼 Galleria</button>
+        <button type="button" id="btn-rmphoto" class="btn danger-text" hidden>Rimuovi</button>
+      </div>
+      <label>Importo (€) <input id="f-importo" inputmode="decimal" placeholder="0,00" autocomplete="off"></label>
+      <label>Data <input id="f-data" type="date"></label>
+      <label>Causale di spesa <input id="f-causale" list="causali" placeholder="Es. Vitto, Carburante, Pedaggio…" autocomplete="off"></label>
+      <fieldset class="seg">
+        <legend>Attribuisci a</legend>
+        <div class="seg-opts">
+          <label><input type="radio" name="tipo" value="trasferta"><span>Una trasferta</span></label>
+          <label><input type="radio" name="tipo" value="varie"><span>Spese varie del mese</span></label>
+        </div>
+      </fieldset>
+      <label id="trip-select-wrap">Trasferta <select id="f-trip"></select></label>
+      <label>Note <textarea id="f-note" rows="2" placeholder="Facoltative (es. cliente, persone presenti)"></textarea></label>
+      <button type="button" id="btn-delete-expense" class="btn danger block" hidden>Elimina scontrino</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="trip-dlg">
+  <form id="trip-form" novalidate>
+    <div class="dlg-head">
+      <button type="button" class="icon-btn" data-close aria-label="Chiudi">✕</button>
+      <h2 id="trip-dlg-title">Nuova trasferta</h2>
+      <button type="submit" class="btn primary small">Salva</button>
+    </div>
+    <div class="dlg-body">
+      <label>Nome / destinazione <input id="t-nome" placeholder="Es. Milano – fiera" autocomplete="off"></label>
+      <div class="row">
+        <label style="flex:1">Dal <input id="t-dal" type="date"></label>
+        <label style="flex:1">Al <input id="t-al" type="date"></label>
+      </div>
+      <label>Note <textarea id="t-note" rows="2" placeholder="Facoltative (es. cliente, motivo)"></textarea></label>
+      <div id="trip-expenses"></div>
+      <button type="button" id="btn-delete-trip" class="btn danger block" hidden>Elimina trasferta</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="viewer">
+  <button type="button" class="icon-btn" data-close aria-label="Chiudi">✕</button>
+  <img alt="Scontrino">
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
